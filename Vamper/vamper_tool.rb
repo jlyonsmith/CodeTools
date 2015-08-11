@@ -106,40 +106,47 @@ Switches:
     file_list.each do |file_name|
       path = File.expand_path(File.join(File.dirname(@version_file_name), file_name))
       path_file_name = File.basename(path)
+      match = false
 
-      version_config_file.file_types.each do |file_type|
-        if file_type.file_specs.any? { |file_spec| file_spec.match(path_file_name) }
-          if file_type.write
-            if File.exists?(path)
-               if @do_update
-                 file_type.updates.each { |update|
-                   content = IO.read(path)
-                   content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(?<name>\w+)}/,'\\\\k<\\k<name>>'))
-                   IO.write(path, content)
-                 }
-               end
-            else
-              error "File #{path} does not exist to update"
-              exit(1)
-            end
-          else # !file_type.write
-            dir = File.dirname(path)
-            unless Dir.exists?(dir)
-              error "Directory '#{dir}' does not exist to write file ''#{path_file_name}''"
-              exit(1)
-            end
-
-            if @do_update
-              IO.write(path, file_type.write)
-            end
-          end
-        else
-          error "File '#{path}' has no matching file type in the '#{version_config_file_name}'"
-          exit(1)
+      for file_type in version_config_file.file_types do
+        unless match = file_type.file_specs.any? { |file_spec| file_spec.match(path_file_name) }
+          next
         end
 
-        puts path
+        if file_type.write
+          if File.exists?(path)
+             if @do_update
+               file_type.updates.each { |update|
+                 content = IO.read(path)
+                 content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(?<name>\w+)}/,'\\\\k<\\k<name>>'))
+                 IO.write(path, content)
+               }
+             end
+          else
+            error "File #{path} does not exist to update"
+            exit(1)
+          end
+        else # !file_type.write
+          dir = File.dirname(path)
+          unless Dir.exists?(dir)
+            error "Directory '#{dir}' does not exist to write file ''#{path_file_name}''"
+            exit(1)
+          end
+
+          if @do_update
+            IO.write(path, file_type.write)
+          end
+        end
+
+        break
       end
+
+      unless match
+        error "File '#{path}' has no matching file type in the .version.config"
+        exit(1)
+      end
+
+      puts path
 
       if @do_update
         version_file.write_to(@version_file_name)
@@ -179,7 +186,7 @@ Switches:
   end
 
   def error(msg)
-    puts "ERROR: #{msg}"
+    puts "error: ".red + "#{msg}"
   end
 
 end

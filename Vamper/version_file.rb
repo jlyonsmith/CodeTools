@@ -20,7 +20,7 @@ class VersionFile
       @doc.root.add_child(Nokogiri::XML::Element.new('Version', @doc))
     end
 
-    add_attribute @doc.root, :BuildValueType
+    add_attribute @doc.root, {:BuildValueType => :JDate}
     add_child_list_element @doc.root, [:Files, :Tags]
     add_child_element tags_element,
       {:Major => 0, :Minor => 0, :Build => 0, :Patch => 0,
@@ -28,13 +28,18 @@ class VersionFile
     add_child_element tags_element, {:StartYear => TZInfo::Timezone.get(self.time_zone).now.year}
   end
 
-  def add_attribute(parent_node, symbol)
-    method_name = symbol.to_s.underscore
-    define_singleton_method(method_name.to_sym) {
-      parent_node[symbol].to_sym
-    }
-    define_singleton_method((method_name + '=').to_sym) { |value|
-      parent_node[symbol] = value.to_s
+  def add_attribute(parent_node, attr_definitions)
+    attr_definitions.each { |attr_symbol, attr_default|
+      method_name = attr_symbol.to_s.underscore
+      unless parent_node[attr_symbol]
+        parent_node[attr_symbol] = attr_default
+      end
+      define_singleton_method(method_name.to_sym) {
+        parent_node[attr_symbol].to_sym
+      }
+      define_singleton_method((method_name + '=').to_sym) { |value|
+        parent_node[attr_symbol] = value.to_s
+      }
     }
   end
 
@@ -43,7 +48,7 @@ class VersionFile
       name = element_symbol.to_s
       elem = parent_element.at(name)
       unless elem
-        elem = parent_element.add_child(Nokogiri::XML::Element.new(elem, @doc))
+        elem = parent_element.add_child(Nokogiri::XML::Element.new(name, @doc))
       end
 
       method_name = name.underscore + '_element'
