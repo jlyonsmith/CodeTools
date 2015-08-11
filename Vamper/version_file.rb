@@ -23,7 +23,7 @@ class VersionFile
     add_attribute @doc.root, {:BuildValueType => :JDate}
     add_child_list_element @doc.root, [:Files, :Tags]
     add_child_element tags_element,
-      {:Major => 0, :Minor => 0, :Build => 0, :Patch => 0,
+      {:Major => 1, :Minor => 0, :Build => 0, :Patch => 0,
       :Revision => 0, :TimeZone => 'UTC'}
     add_child_element tags_element, {:StartYear => TZInfo::Timezone.get(self.time_zone).now.year}
   end

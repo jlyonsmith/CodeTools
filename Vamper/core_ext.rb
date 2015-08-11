@@ -7,6 +7,14 @@ class String
         downcase
   end
 
+  def replace_tags(tags)
+    str = self
+    tags.each { |name, value|
+      str = str.gsub(%r(\$\{#{name.to_s}\})m, value)
+    }
+    str
+  end
+
   def replace_tags!(tags)
     tags.each { |name, value|
       self.gsub!(%r(\$\{#{name.to_s}\})m, value)

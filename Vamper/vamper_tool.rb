@@ -109,24 +109,12 @@ Switches:
       match = false
 
       for file_type in version_config_file.file_types do
-        unless match = file_type.file_specs.any? { |file_spec| file_spec.match(path_file_name) }
+        match = file_type.file_specs.any? { |file_spec| file_spec.match(path_file_name) }
+        unless match
           next
         end
 
         if file_type.write
-          if File.exists?(path)
-             if @do_update
-               file_type.updates.each { |update|
-                 content = IO.read(path)
-                 content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(?<name>\w+)}/,'\\\\k<\\k<name>>'))
-                 IO.write(path, content)
-               }
-             end
-          else
-            error "File #{path} does not exist to update"
-            exit(1)
-          end
-        else # !file_type.write
           dir = File.dirname(path)
           unless Dir.exists?(dir)
             error "Directory '#{dir}' does not exist to write file ''#{path_file_name}''"
@@ -135,6 +123,19 @@ Switches:
 
           if @do_update
             IO.write(path, file_type.write)
+          end
+        else # !file_type.write
+          if File.exists?(path)
+            if @do_update
+              file_type.updates.each do |update|
+                content = IO.read(path)
+                content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(?<name>\w+)}/,'\\\\k<\\k<name>>'))
+                IO.write(path, content)
+              end
+            end
+          else
+            error "File #{path} does not exist to update"
+            exit(1)
           end
         end
 
@@ -149,7 +150,7 @@ Switches:
       puts path
 
       if @do_update
-        version_file.write_to(@version_file_name)
+        version_file.write_to(File.open(@version_file_name, 'w'))
       end
     end
   end
