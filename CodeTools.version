@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Version BuildValueType="JDate">
   <Files>
+<!--
     <File>Ender/Properties/AssemblyInfo.cs</File>
     <File>Spacer/Properties/AssemblyInfo.cs</File>
-    <File>Vamper/Properties/AssemblyInfo.cs</File>
+-->
+    <File>Vamper/vamper_tool.cs</File>
   </Files>
   <Tags>
     <Major>3</Major>

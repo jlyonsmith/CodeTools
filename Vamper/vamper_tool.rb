@@ -9,7 +9,7 @@ require_relative 'core_ext.rb'
 class VamperTool
 
   def initialize
-    @update = false;
+    @do_update = false;
     @version_file_name = ''
     @today = Date.today
   end
@@ -33,7 +33,7 @@ Switches:
 )
           exit(0)
         when '-u', '-update'
-          @update = true
+          @do_update = true
         else
           @version_file_name = arg
       end
@@ -92,7 +92,7 @@ Switches:
       puts "  #{key}=#{value}"
     }
 
-    if @update
+    if @do_update
       puts 'Updating version information:'
     end
 
@@ -103,18 +103,19 @@ Switches:
     version_config_file = VersionConfigFile.new(File.open(version_config_file_name), tags)
     file_list = version_file.files.map { |file_name| file_name.replace_tags!(tags) }
 
-    file_list.each { |file_name|
+    file_list.each do |file_name|
       path = File.expand_path(File.join(File.dirname(@version_file_name), file_name))
       path_file_name = File.basename(path)
 
-      version_config_file.file_types.each { |file_type|
+      version_config_file.file_types.each do |file_type|
         if file_type.file_specs.any? { |file_spec| file_spec.match(path_file_name) }
           if file_type.write
             if File.exists?(path)
-               if update
+               if @do_update
                  file_type.updates.each { |update|
                    content = IO.read(path)
-                   content.gsub!(%r(#{update.search})m, update.replace)
+                   content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(?<name>\w+)}/,'\\\\k<\\k<name>>'))
+                   IO.write(path, content)
                  }
                end
             else
@@ -122,12 +123,28 @@ Switches:
               exit(1)
             end
           else # !file_type.write
+            dir = File.dirname(path)
+            unless Dir.exists?(dir)
+              error "Directory '#{dir}' does not exist to write file ''#{path_file_name}''"
+              exit(1)
+            end
 
+            if @do_update
+              IO.write(path, file_type.write)
+            end
           end
+        else
+          error "File '#{path}' has no matching file type in the '#{version_config_file_name}'"
+          exit(1)
         end
-      }
-    }
 
+        puts path
+      end
+
+      if @do_update
+        version_file.write_to(@version_file_name)
+      end
+    end
   end
 
   def find_version_file
