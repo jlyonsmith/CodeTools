@@ -10,7 +10,7 @@ class VersionFile
 
   def initialize(io)
     if io
-      @doc = Nokogiri::XML(io)
+      @doc = Nokogiri::XML(io, &:noblanks)
 
       unless @doc.root.name == 'Version'
         raise BadVersionFile, 'Root element must be Version'
@@ -20,11 +20,10 @@ class VersionFile
       @doc.root.add_child(Nokogiri::XML::Element.new('Version', @doc))
     end
 
-    add_attribute @doc.root, {:BuildValueType => :JDate}
-    add_child_list_element @doc.root, [:Files, :Tags]
+    add_attribute @doc.root, :BuildValueType => :JDate
+    add_child_list_element @doc.root, :Files, :Tags
     add_child_element tags_element,
-      {:Major => 1, :Minor => 0, :Build => 0, :Patch => 0,
-      :Revision => 0, :TimeZone => 'UTC'}
+      :Major => 1, :Minor => 0, :Build => 0, :Patch => 0, :Revision => 0, :TimeZone => 'UTC'
     add_child_element tags_element, {:StartYear => TZInfo::Timezone.get(self.time_zone).now.year}
   end
 
@@ -43,7 +42,7 @@ class VersionFile
     }
   end
 
-  def add_child_list_element(parent_element, element_symbols)
+  def add_child_list_element(parent_element, *element_symbols)
     element_symbols.each { |element_symbol|
       name = element_symbol.to_s
       elem = parent_element.at(name)
@@ -85,7 +84,7 @@ class VersionFile
   end
 
   def write_to(io)
-    @doc.write_xml_to(io)
+    @doc.write_xml_to(io, :indent_text => ' ', :indent => 2)
   end
 
   def tags

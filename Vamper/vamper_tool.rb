@@ -129,7 +129,7 @@ Switches:
             if @do_update
               file_type.updates.each do |update|
                 content = IO.read(path)
-                content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(?<name>\w+)}/,'\\\\k<\\k<name>>'))
+                content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(\w+)}/,'\\\\k<\\1>'))
                 IO.write(path, content)
               end
             end

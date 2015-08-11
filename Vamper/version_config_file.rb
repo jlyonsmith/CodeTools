@@ -24,7 +24,7 @@ class VersionConfigFile
             sub_node.at_xpath('Replace').text.replace_tags(tags))
         }
       end
-      write_node = node.xpath('Write')
+      write_node = node.at_xpath('Write')
       if write_node
         file_type.write = write_node.text.replace_tags(tags)
       end
