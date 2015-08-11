@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Version BuildValueType="JDate">
+  <Files>
+    <File>Ender/Properties/AssemblyInfo.cs</File>
+    <File>Spacer/Properties/AssemblyInfo.cs</File>
+    <File>Vamper/Properties/AssemblyInfo.cs</File>
+  </Files>
+  <Tags>
+    <Major>3</Major>
+    <Minor>0</Minor>
+    <Build>10807</Build>
+    <Revision>0</Revision>
+    <StartYear>2015</StartYear>
+    <Company>John Lyon-Smith</Company>
+    <Product>CodeTools</Product>
+    <Copyright>Copyright (c) 2015, John Lyon-Smith</Copyright>
+  </Tags>
+</Version>

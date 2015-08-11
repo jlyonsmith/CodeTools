@@ -1,6 +1,6 @@
 # Source Code Tools
 
-A collection of useful command line development tools for source code maintenance written in [Ruby](https://www.ruby-lang.org/en/).  I use [RubyMine](https://www.jetbrains.com/ruby/) as the IDE for maintaining the tools.
+A collection of useful command line development tools for general source code maintenance.  They are written in [Ruby](https://www.ruby-lang.org/en/) for maximum portability.  I use [RubyMine](https://www.jetbrains.com/ruby/) for writing and debugging them, but it's not required.
 
 - __Ender__ reports on and fixing line endings
 - __Vamper__ updates file and product version numbers across a variety of different file types
