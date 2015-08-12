@@ -1,7 +1,5 @@
-require 'rubygems'
-require 'bundler/setup'
 require 'nokogiri'
-require_relative  'core_ext.rb'
+require 'core_ext.rb'
 
 class VersionConfigFile
   def initialize(io, tags)

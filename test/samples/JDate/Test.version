@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Version BuildValueType="JDate">
+  <Files>
+    <File>Test/Properties/AssemblyInfo.cs</File>
+  </Files>
+  <Tags>
+    <Major>1</Major>
+    <Minor>0</Minor>
+    <Build>10812</Build>
+    <Revision>0</Revision>
+    <StartYear>2015</StartYear>
+    <Company>Pretend Company</Company>
+    <Product>Pretend Product</Product>
+    <Copyright>Copyright (c) 2015, Pretend Person</Copyright>
+    <Patch>0</Patch>
+    <TimeZone>UTC</TimeZone>
+  </Tags>
+</Version>

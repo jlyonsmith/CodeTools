@@ -1,28 +1,26 @@
-require 'rubygems'
-require 'bundler/setup'
 require 'tzinfo'
 require 'nokogiri'
-require_relative 'version_file.rb'
-require_relative 'version_config_file.rb'
-require_relative 'core_ext.rb'
+require 'vamper/version_file.rb'
+require 'vamper/version_config_file.rb'
+require 'core_ext.rb'
 
-class VamperTool
+$VERSION='4.0.0-20150811.0'
+
+class Vamper
 
   def initialize
     @do_update = false;
     @version_file_name = ''
-    @today = Date.today
   end
 
   def parse(args)
     args.each { |arg|
       case arg
         when '-?', '-help'
-          print %q(
-Version Stamper. Release Version 3.0.10708.2
+          print %Q(Version Stamper. Version #{$VERSION}
 Copyright (c) John Lyon-Smith 2015.
 
-Syntax:               vamper_tool.rb [switches] VERSION_FILE
+Syntax:               #{File.basename(__FILE__)} [switches] VERSION_FILE
 
 Description:          Stamps versions into project files
 
@@ -30,6 +28,7 @@ Switches:
 
     -help|-?          Shows this help
     -u|-update        Increment the build number and update all files
+
 )
           exit(0)
         when '-u', '-update'
@@ -62,9 +61,11 @@ Switches:
       verson_file = VersionFile.new
     end
 
+    now = TZInfo::Timezone.get(version_file.time_zone).now
+
     case version_file.build_value_type
       when :JDate
-        build = get_jdate(version_file.start_year)
+        build = get_jdate(now, version_file.start_year)
 
         if version_file.build != build
           version_file.revision = 0
@@ -73,7 +74,7 @@ Switches:
           version_file.revision += 1
         end
       when :FullDate
-        build = get_full_date
+        build = get_full_date(now)
 
         if version_file.build != build
           version_file.revision = 0
@@ -178,12 +179,12 @@ Switches:
     end
   end
 
-  def get_full_date
-    @today.year * 10000 + @today.month * 100 + @today.mday
+  def get_full_date(now)
+    now.year * 10000 + now.month * 100 + now.mday
   end
 
-  def get_jdate(start_year)
-    ((@today.year - start_year + 1) * 10000) + (@today.month * 100) + @today.mday
+  def get_jdate(now, start_year)
+    ((now.year - start_year + 1) * 10000) + (now.month * 100) + now.mday
   end
 
   def error(msg)
@@ -191,5 +192,3 @@ Switches:
   end
 
 end
-
-VamperTool.new.execute
