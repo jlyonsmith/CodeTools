@@ -11,3 +11,5 @@ A collection of useful command line development tools for general source code ma
 The latest version of the tools can be installed using [HomeBrew](http://brew.sh) with:
 
     brew install https://gist.githubusercontent.com/jlyonsmith/288321e7dec8520761c2/raw/45b0b2a9c21fa088c8d6f375b37f11cf28bd923c/codetools.rb
+
+You can also install the [code_tools](https://rubygems.org/gems/code_tools) Ruby Gem.
