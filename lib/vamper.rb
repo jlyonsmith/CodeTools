@@ -2,6 +2,7 @@ require 'tzinfo'
 require 'nokogiri'
 require 'ostruct'
 require 'optparse'
+require 'colorize'
 require_relative './vamper/version_file.rb'
 require_relative './vamper/version_config_file.rb'
 require_relative './core_ext.rb'
@@ -16,15 +17,15 @@ class Vamper
     options.version_file_name = ''
 
     opt_parser = OptionParser.new do |opts|
-      opts.banner = %Q(Version Stamper. Version #{$VERSION}
+      opts.banner = %Q(Vamper Version Stamper. Version #{$VERSION}
 Copyright (c) John Lyon-Smith, 2016.
 Usage:            #{File.basename(__FILE__)} [options]
 )
       opts.separator %Q(Options:
 )
 
-      opts.on("-u", "--update", "Increment the build number and update all files") do |dir|
-        options.do_update = true
+      opts.on("-u", "--update", "Increment the build number and update all files") do |update|
+        options.do_update = update
       end
 
       opts.on_tail("-?", "--help", "Show this message") do
@@ -189,7 +190,7 @@ Usage:            #{File.basename(__FILE__)} [options]
   end
 
   def error(msg)
-    puts "error: ".red + "#{msg}"
+    puts "error: #{msg}".colorize(:red)
   end
 
 end
