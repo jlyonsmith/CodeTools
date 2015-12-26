@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'code_tools'
-  s.version     = '4.0.0'
-  s.date        = '2015-08-11'
+  s.version     = '4.1.0'
+  s.date        = '2015-12-25'
   s.summary     = "Source code tools"
   s.description = "Tools for source code maintenance, including version stamping, line endings and tab/space conversion."
   s.authors     = ["John Lyon-smith"]

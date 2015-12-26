@@ -1,5 +1,5 @@
 require 'nokogiri'
-require 'core_ext.rb'
+require_relative '../core_ext.rb'
 
 class BadVersionFile < StandardError; end
 

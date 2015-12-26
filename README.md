@@ -2,14 +2,20 @@
 
 A collection of useful command line development tools for general source code maintenance.  They are written in [Ruby](https://www.ruby-lang.org/en/) for maximum portability.  I use [RubyMine](https://www.jetbrains.com/ruby/) for writing and debugging them, but it's not required.
 
-- __Ender__ reports on and fixing line endings
-- __Vamper__ updates file and product version numbers across a variety of different file types
-- __Spacer__ fixes spaces and tabs in source code and other text files
+- __vamper__ updates file and product version numbers across a variety of different file types
+- __ender__ reports on and fixes line endings in text files
+- __spacer__ reports on and fixes initial spaces and tabs in source code and other text files
 
-## Installation
+To install the latest version of [code_tools](https://rubygems.org/gems/code_tools) simply run:
 
-The latest version of the tools can be installed using [HomeBrew](http://brew.sh) with:
+```bash
+gem install code_tools
+```
 
-    brew install https://gist.githubusercontent.com/jlyonsmith/288321e7dec8520761c2/raw/45b0b2a9c21fa088c8d6f375b37f11cf28bd923c/codetools.rb
+## Debugging
 
-You can also install the [code_tools](https://rubygems.org/gems/code_tools) Ruby Gem.
+Because of the directory layout, running the tools from the command line requires a little more effort:
+
+```bash
+ruby -e 'load($0=ARGV.shift);Vamper.new.execute' -- lib/vamper.rb --help
+```

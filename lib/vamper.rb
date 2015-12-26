@@ -1,66 +1,65 @@
 require 'tzinfo'
 require 'nokogiri'
-require 'vamper/version_file.rb'
-require 'vamper/version_config_file.rb'
-require 'core_ext.rb'
+require 'ostruct'
+require 'optparse'
+require_relative './vamper/version_file.rb'
+require_relative './vamper/version_config_file.rb'
+require_relative './core_ext.rb'
 
-$VERSION='4.0.0-20150811.0'
+$VERSION='4.1.0-20151225.0'
 
 class Vamper
 
-  def initialize
-    @do_update = false;
-    @version_file_name = ''
-  end
-
   def parse(args)
-    args.each { |arg|
-      case arg
-        when '-?', '-help'
-          print %Q(Version Stamper. Version #{$VERSION}
-Copyright (c) John Lyon-Smith 2015.
+    options = OpenStruct.new
+    options.do_update = false
+    options.version_file_name = ''
 
-Syntax:               #{File.basename(__FILE__)} [switches] VERSION_FILE
-
-Description:          Stamps versions into project files
-
-Switches:
-
-    -help|-?          Shows this help
-    -u|-update        Increment the build number and update all files
-
+    opt_parser = OptionParser.new do |opts|
+      opts.banner = %Q(Version Stamper. Version #{$VERSION}
+Copyright (c) John Lyon-Smith, 2016.
+Usage:            #{File.basename(__FILE__)} [options]
 )
-          exit(0)
-        when '-u', '-update'
-          @do_update = true
-        else
-          @version_file_name = arg
+      opts.separator %Q(Options:
+)
+
+      opts.on("-u", "--update", "Increment the build number and update all files") do |dir|
+        options.do_update = true
       end
-    }
+
+      opts.on_tail("-?", "--help", "Show this message") do
+        puts opts
+        exit
+      end
+    end
+
+    opt_parser.parse!(args)
+    options
   end
 
   def execute
-    self.parse(ARGV)
+    options = self.parse(ARGV)
 
-    if @version_file_name.length == 0
-      find_version_file
+    if options.version_file_name.length == 0
+      find_version_file options
     end
 
-    @version_file_name = File.expand_path(@version_file_name)
+    options.version_file_name = File.expand_path(options.version_file_name)
 
-    project_name = File.basename(@version_file_name, '.version')
-    version_config_file_name = "#{File.dirname(@version_file_name)}/#{project_name}.version.config"
+    project_name = File.basename(options.version_file_name, '.version')
+    version_config_file_name = "#{File.dirname(options.version_file_name)}/#{project_name}.version.config"
 
-    puts "Version file is '#{@version_file_name}'"
+    puts "Version file is '#{options.version_file_name}'"
     puts "Version config is '#{version_config_file_name}'"
     puts "Project name is '#{project_name}'"
 
-    if File.exists?(@version_file_name)
-      version_file = VersionFile.new(File.open(@version_file_name))
+    if File.exists?(options.version_file_name)
+      version_file = VersionFile.new(File.open(options.version_file_name))
     else
       verson_file = VersionFile.new
     end
 
+    tags = version_file.tags
     now = TZInfo::Timezone.get(version_file.time_zone).now
 
     case version_file.build_value_type
@@ -82,18 +81,18 @@ Switches:
         else
           version_file.revision += 1
         end
+        tags[:DashBuild] = build[0..3] + '-' + build[4..5] + '-' + build[6..7]
       when :Incremental
         version_file.build += 1
         version_file.revision = 0
     end
 
     puts 'Version data is:'
-    tags = version_file.tags
     tags.each { |key, value|
       puts "  #{key}=#{value}"
     }
 
-    if @do_update
+    if options.do_update
       puts 'Updating version information:'
     end
 
@@ -105,7 +104,7 @@ Switches:
     file_list = version_file.files.map { |file_name| file_name.replace_tags!(tags) }
 
     file_list.each do |file_name|
-      path = File.expand_path(File.join(File.dirname(@version_file_name), file_name))
+      path = File.expand_path(File.join(File.dirname(options.version_file_name), file_name))
       path_file_name = File.basename(path)
       match = false
 
@@ -122,14 +121,16 @@ Switches:
             exit(1)
           end
 
-          if @do_update
+          if options.do_update
             IO.write(path, file_type.write)
           end
         else # !file_type.write
           if File.exists?(path)
-            if @do_update
+            if options.do_update
               file_type.updates.each do |update|
                 content = IO.read(path)
+                # At this the only ${...} variables left in the replace strings are Before and After
+                # This line converts the ${...} into \k<...>
                 content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(\w+)}/,'\\\\k<\\1>'))
                 IO.write(path, content)
               end
@@ -150,19 +151,19 @@ Switches:
 
       puts path
 
-      if @do_update
-        version_file.write_to(File.open(@version_file_name, 'w'))
+      if options.do_update
+        version_file.write_to(File.open(options.version_file_name, 'w'))
       end
     end
   end
 
-  def find_version_file
+  def find_version_file(options)
     dir = Dir.pwd
 
     while dir.length != 0
       files = Dir.glob('*.version')
       if files.length > 0
-        @version_file_name = files[0]
+        options.version_file_name = files[0]
         break
       else
         if dir == '/'
@@ -173,18 +174,18 @@ Switches:
       end
     end
 
-    if @version_file_name.length == 0
+    if options.version_file_name.length == 0
       error 'Unable to find a .version file in this or parent directories.'
       exit(1)
     end
   end
 
   def get_full_date(now)
-    now.year * 10000 + now.month * 100 + now.mday
+    (now.year * 10000 + now.month * 100 + now.mday).to_s
   end
 
   def get_jdate(now, start_year)
-    ((now.year - start_year + 1) * 10000) + (now.month * 100) + now.mday
+    (((now.year - start_year + 1) * 10000) + (now.month * 100) + now.mday).to_s
   end
 
   def error(msg)

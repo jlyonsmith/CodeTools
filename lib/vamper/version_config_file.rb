@@ -1,5 +1,5 @@
 require 'nokogiri'
-require 'core_ext.rb'
+require_relative '../core_ext.rb'
 
 class VersionConfigFile
   def initialize(io, tags)
@@ -16,6 +16,7 @@ class VersionConfigFile
       }
       update_node_set = node.xpath('Update')
       if update_node_set
+        # Replace ${...} entries in the replace string with equivalent tags if available
         file_type.updates = update_node_set.map { |sub_node|
           s_and_r = search_replace_struct.new(
             %r(#{sub_node.at_xpath('Search').text.gsub(/\(\?'(\w+)'/, '(?<\\1>')}),
