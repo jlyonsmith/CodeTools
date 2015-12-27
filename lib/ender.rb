@@ -84,7 +84,7 @@ Usage:            #{File.basename(__FILE__)} [options]
 
     num_endings = (num_cr > 0 ? 1 : 0) + (num_lf > 0 ? 1 : 0) + (num_crlf > 0 ? 1 : 0)
     le = num_endings > 1 ? :mixed : num_cr > 0 ? :cr : num_lf > 0 ? :lf : :crlf
-    msg = "#{options.input_filename}, #{le.to_s}, #{num_lines} lines"
+    msg = "\"#{options.input_filename}\", #{le.to_s}, #{num_lines} lines"
 
     if options.convert_mode == nil
       puts msg
@@ -108,7 +108,7 @@ Usage:            #{File.basename(__FILE__)} [options]
       options.convert_mode = auto_line_ending
     end
 
-    new_num_lines = 0
+    new_num_lines = 1
 
     if (options.convert_mode == :cr and num_cr + 1 == num_lines) or
         (options.convert_mode == :lf and num_lf + 1 == num_lines) or
@@ -121,11 +121,10 @@ Usage:            #{File.basename(__FILE__)} [options]
         options.convert_mode == :lf ? "\n" :
         "\r\n"
 
-      new_num_lines = 0
       file = nil
 
       begin
-        file = File.new(options.output_filename, "w")
+        file = File.new(options.output_filename, 'w')
 
         i = 0
         while i < file_contents.length
@@ -139,20 +138,22 @@ Usage:            #{File.basename(__FILE__)} [options]
             new_num_lines += 1
             file.write(newline_chars)
           elsif c == "\n"
-            newNumLines++
+            new_num_lines += 1
             file.write(newline_chars)
           else
             file.write(c)
           end
+
+          i += 1
         end
-      rescue
-        error "Unable to write #{options.output_filename}"
+      rescue Exception => e
+        error "unable to write #{options.output_filename}. #{e.to_s}"
         exit
       ensure
         file.close() unless !file
       end
 
-      msg += " -> \"#{options.output_filename}\", #{options.convert_mode.to_s}, #{new_num_lines}"
+      msg += " -> \"#{options.output_filename}\", #{options.convert_mode.to_s}, #{new_num_lines} lines"
     end
 
     puts msg
@@ -160,7 +161,7 @@ Usage:            #{File.basename(__FILE__)} [options]
 
 
   def error(msg)
-    puts "error: #{msg}".colorize(:red)
+    STDERR.puts "error: #{msg}".colorize(:red)
   end
 
 end
