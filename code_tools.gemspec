@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
     "lib/vamper/default.version.config",
     "lib/vamper/version_config_file.rb",
     "lib/vamper/version_file.rb"]
-  s.executables = ['vamper', 'spacer', 'ender', 'code_tools']
+  s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.homepage = 'http://rubygems.org/gems/code_tools'
   s.license  = 'MIT'
   s.required_ruby_version = '~> 2.0'
