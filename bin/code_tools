@@ -1,1 +1,4 @@
 #!/bin/bash
+echo "vamper - Version stamper"
+echo "ender - CR/LF line ending fixer"
+echo "spacer - Space/tab line fixer"

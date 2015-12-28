@@ -31,5 +31,6 @@ curl -u <yourname> https://rubygems.org/api/v1/api_key.yaml > ~/.gem/credentials
 Then:
 
 ```bash
-$gem push code_tools-<version>.gem
+gem build code_tools.gemspec
+gem push code_tools-<version>.gem
 ```
