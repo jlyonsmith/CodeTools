@@ -13,7 +13,7 @@ class Ender
     options.convert_mode = nil
 
     opt_parser = OptionParser.new do |opts|
-      opts.banner = %Q(ender Line Ending Fixer. Version #{$VERSION}
+      opts.banner = %Q(Ender Line Ending Fixer. Version #{$VERSION}
 Copyright (c) John Lyon-Smith, 2015.
 Usage:            #{File.basename(__FILE__)} [options]
 )

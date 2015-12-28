@@ -7,7 +7,9 @@ Gem::Specification.new do |s|
   s.authors     = ["John Lyon-smith"]
   s.email       = "john@jamoki.com"
   s.files       = [
-    "lib/vamper.rb",
+      "lib/vamper.rb",
+      "lib/ender.rb",
+      "lib/spacer.rb",
     "lib/core_ext.rb",
     "lib/vamper/default.version.config",
     "lib/vamper/version_config_file.rb",
@@ -20,4 +22,5 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.0'
   s.add_runtime_dependency "tzinfo", ["~> 1.2"]
   s.add_runtime_dependency "nokogiri", ["~> 1.6"]
+  s.add_runtime_dependency "colorize", ["~> 0.7.7"]
 end

@@ -2,11 +2,13 @@
 <Version BuildValueType="FullDate">
   <Files>
     <File>lib/vamper.rb</File>
+    <File>lib/ender.rb</File>
+    <File>lib/spacer.rb</File>
     <File>code_tools.gemspec</File>
   </Files>
   <Tags>
     <Major>4</Major>
-    <Minor>1</Minor>
+    <Minor>2</Minor>
     <Patch>0</Patch>
     <Build>20151225</Build>
     <Revision>0</Revision>
