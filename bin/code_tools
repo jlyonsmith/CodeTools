@@ -1,4 +1,4 @@
-#!/bin/bash
-echo "vamper - Version stamper"
-echo "ender - CR/LF line ending fixer"
-echo "spacer - Space/tab line fixer"
+#!/usr/bin/env ruby
+puts "vamper - Version stamper"
+puts "ender - CR/LF line ending fixer"
+puts "spacer - Space/tab line fixer"
