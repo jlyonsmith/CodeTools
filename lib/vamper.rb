@@ -7,7 +7,7 @@ require_relative './vamper/version_file.rb'
 require_relative './vamper/version_config_file.rb'
 require_relative './core_ext.rb'
 
-$VERSION='4.2.0-20151225.0'
+$VERSION='4.2.1-20151227.0'
 
 class Vamper
 

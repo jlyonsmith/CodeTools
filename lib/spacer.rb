@@ -2,7 +2,7 @@ require 'ostruct'
 require 'optparse'
 require 'colorize'
 
-$VERSION='4.2.0-20151225.0'
+$VERSION='4.2.1-20151227.0'
 
 class Spacer
 
