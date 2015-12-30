@@ -73,7 +73,10 @@ Usage:            #{File.basename(__FILE__)} [options]
         else
           version_file.revision += 1
         end
-      when :FullDate
+      when :Incremental
+        version_file.build += 1
+        version_file.revision = 0
+      else # :FullDate
         build = get_full_date(now)
 
         if version_file.build != build
@@ -82,10 +85,8 @@ Usage:            #{File.basename(__FILE__)} [options]
         else
           version_file.revision += 1
         end
-        tags[:DashBuild] = build[0..3] + '-' + build[4..5] + '-' + build[6..7]
-      when :Incremental
-        version_file.build += 1
-        version_file.revision = 0
+        build_str = build.to_s
+        tags[:DashBuild] = build_str[0..3] + '-' + build_str[4..5] + '-' + build_str[6..7]
     end
 
     puts 'Version data is:'
@@ -137,7 +138,7 @@ Usage:            #{File.basename(__FILE__)} [options]
               end
             end
           else
-            error "File #{path} does not exist to update"
+            error "file #{path} does not exist to update"
             exit(1)
           end
         end
@@ -146,7 +147,7 @@ Usage:            #{File.basename(__FILE__)} [options]
       end
 
       unless match
-        error "File '#{path}' has no matching file type in the .version.config"
+        error "file '#{path}' has no matching file type in the .version.config"
         exit(1)
       end
 
@@ -182,7 +183,7 @@ Usage:            #{File.basename(__FILE__)} [options]
   end
 
   def get_full_date(now)
-    (now.year * 10000 + now.month * 100 + now.mday).to_s
+    now.year * 10000 + now.month * 100 + now.mday
   end
 
   def get_jdate(now, start_year)
@@ -190,7 +191,7 @@ Usage:            #{File.basename(__FILE__)} [options]
   end
 
   def error(msg)
-    puts "error: #{msg}".colorize(:red)
+    STDERR.puts "error: #{msg}".red
   end
 
 end

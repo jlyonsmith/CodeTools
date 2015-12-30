@@ -42,9 +42,7 @@ spaces that are not a whole number multiple of the tabstop size.  In that case u
         options.convert_mode = mode
       end
 
-      opts.on("-t", "--tabsize SIZE", Integer, "Tab size. Default is 4 spaces.",
-              "Default is to just display the files current state.",
-              "Updates will only be done when this argument is given.") do |size|
+      opts.on("-t", "--tabsize SIZE", Integer, "Tab size in spaces to assume. Default is 4 spaces.") do |size|
         options.tabsize = size
       end
 
