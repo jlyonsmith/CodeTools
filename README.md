@@ -12,6 +12,14 @@ To install the latest version of [code_tools](https://rubygems.org/gems/code_too
 gem install code_tools
 ```
 
+## Spacer
+
+Spacer will report on and normalize spaces and tabs in source code and text files.  Normalize the spaces of an entire directory of files _in-place_ with:
+
+```bash
+find *.cs -exec spacer -m spaces -t 4 -r {} \;
+```
+
 ## Debugging
 
 Because of the directory layout, running the tools from the command line requires a little more effort:
