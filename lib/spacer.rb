@@ -397,7 +397,7 @@ spaces that are not a whole number multiple of the tabstop size.  In that case u
   end
 
   def error(msg)
-    STDERR.puts "error: #{msg}".colorize(:red)
+    STDERR.puts "error: #{msg}".red
   end
 
 end
