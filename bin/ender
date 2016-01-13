@@ -124,6 +124,8 @@ class Tool
     info msg
   end
 
+  change_logger Methadone::CLILogger.new
+
   description 'Ender - the line ending fixer'
   version '5.0.0'
 
