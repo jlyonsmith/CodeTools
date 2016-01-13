@@ -1,8 +1,4 @@
-require 'rake/testtask'
-
-Rake::TestTask.new do |t|
-  t.libs << 'test'
-end
-
-desc "Run tests"
 task :default => :test
+task :test do
+  Dir.glob('./test/test_*.rb').each { |file| require file}
+end

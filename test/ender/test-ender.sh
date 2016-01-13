@@ -2,7 +2,7 @@
 
 rm *.txt
 ruby gen_ender_test_files.rb
-ENDER="ruby -e 'load(\$0=ARGV.shift);Ender.new.execute' -- ../../lib/ender.rb"
+ENDER="ruby -I../../lib ../../bin/ender"
 eval $ENDER -?
 eval $ENDER cr.txt
 eval $ENDER lf.txt

@@ -1,4 +1,149 @@
 #!/usr/bin/env ruby
 
-require 'ender'
-Ender.new.execute
+require 'methadone'
+
+class Tool
+  include Methadone::Main
+  include Methadone::CLILogging
+
+  main do |input_file|
+    unless File.exist?(input_file)
+      error "File #{input_file} does not exist"
+      next 1
+    end
+
+    output_file = options[:output_file]
+
+    if output_file.nil?
+      output_file = input_file
+    end
+
+    # Read the entire file and determine all the different line endings
+    file_contents = IO.read(input_file)
+    num_cr = 0
+    num_lf = 0
+    num_crlf = 0
+    num_lines = 1
+
+    i = 0
+    while i < file_contents.length do
+      c = file_contents[i]
+
+      if c == "\r"
+        if i < file_contents.length - 1 and file_contents[i + 1] == "\n"
+          num_crlf += 1
+          i += 1
+        else
+          num_cr += 1
+        end
+
+        num_lines += 1
+      elsif c == "\n"
+        num_lf += 1
+        num_lines += 1
+      end
+      i += 1
+    end
+
+    num_endings = (num_cr > 0 ? 1 : 0) + (num_lf > 0 ? 1 : 0) + (num_crlf > 0 ? 1 : 0)
+    le = num_endings > 1 ? :mixed : num_cr > 0 ? :cr : num_lf > 0 ? :lf : :crlf
+    msg = "\"#{input_file}\", #{le.to_s}, #{num_lines} lines"
+
+    if options[:mode].nil?
+      info msg
+      next 1
+    end
+
+    if options[:mode] == :auto
+      # Find the most common line ending and make that the automatic line ending
+      auto_line_ending = :lf
+      n = num_lf
+
+      if num_crlf > n
+        auto_line_ending = :crlf
+        n = num_crlf
+      end
+
+      if num_cr > n
+        auto_line_ending = :cr
+      end
+
+      options[:mode] = auto_line_ending
+    end
+
+    new_num_lines = 1
+
+    if (options[:mode] == :cr and num_cr + 1 == num_lines) or
+        (options[:mode] == :lf and num_lf + 1 == num_lines) or
+        (options[:mode] == :crlf and num_crlf + 1 == num_lines)
+      # We're not changing the line endings; nothing to do
+      new_num_lines = num_lines
+    else
+      newline_chars =
+        options[:mode] == :cr ? "\r" :
+        options[:mode] == :lf ? "\n" :
+        "\r\n"
+
+      file = nil
+
+      begin
+        file = File.new(output_file, 'w')
+
+        i = 0
+        while i < file_contents.length
+          c = file_contents[i]
+
+          if c == "\r"
+            if i < file_contents.length - 1 && file_contents[i + 1] == "\n"
+              i += 1
+            end
+
+            new_num_lines += 1
+            file.write(newline_chars)
+          elsif c == "\n"
+            new_num_lines += 1
+            file.write(newline_chars)
+          else
+            file.write(c)
+          end
+
+          i += 1
+        end
+      rescue Exception => e
+        error "unable to write #{output_file}. #{e.to_s}"
+        next 1
+      ensure
+        file.close() unless !file
+      end
+
+      msg += " -> \"#{output_file}\", #{options[:mode].to_s}, #{new_num_lines} lines"
+    end
+
+    info msg
+  end
+
+  description 'Ender - the line ending fixer'
+  version '5.0.0'
+
+  on("-o", "--output-file FILE", "The output file. Default is the same as the input file.")
+  on("-m", "--mode MODE",
+    "The convert mode, either auto, cr, lf, crlf. auto will use the most commonly occurring ending. "\
+    "Updates will only be done when this argument is given.") do |mode|
+    options[:mode] = case mode
+      when 'auto', 'a'
+        :auto
+      when 'lf'
+        :lf
+      when 'cr'
+        :cr
+      when 'crlf'
+        :crlf
+      else
+        exit_now! "Unknown mode #{mode}"
+    end
+  end
+
+  arg :input_file, "Input file to check or convert"
+
+  go!
+end

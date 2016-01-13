@@ -1,4 +1,172 @@
 #!/usr/bin/env ruby
 
+require 'methadone'
 require 'vamper'
-Vamper.new.execute
+require 'tzinfo'
+
+class Tool
+  include Methadone::Main
+  include Methadone::CLILogging
+
+  def self.find_version_file()
+    dir = Dir.pwd
+
+    while dir.length != 0
+      files = Dir.glob('*.version')
+      if files.length > 0
+        file = files[0]
+        break
+      else
+        if dir == '/'
+          dir = ''
+        else
+          dir = File.expand_path('..', dir)
+        end
+      end
+    end
+
+    if file.nil?
+      exit_now! 'Unable to find a .version file in this or parent directories.'
+    end
+
+    file
+  end
+
+  def self.get_full_date(now)
+    now.year * 10000 + now.month * 100 + now.mday
+  end
+
+  def get_jdate(now, start_year)
+    (((now.year - start_year + 1) * 10000) + (now.month * 100) + now.mday).to_s
+  end
+
+  main do |input_file|
+    if input_file.nil? or !File.exist?(input_file)
+      input_file = find_version_file
+    end
+
+    input_file = File.expand_path(input_file)
+
+    project_name = File.basename(input_file, '.version')
+    version_config_file_name = "#{File.dirname(input_file)}/#{project_name}.version.config"
+
+    info "Version file is '#{input_file}'"
+    info "Version config is '#{version_config_file_name}'"
+    info "Project name is '#{project_name}'"
+
+    if File.exists?(input_file)
+      version_data = Vamper::VersionFile.new(File.open(input_file))
+    else
+      version_data = Vamper::VersionFile.new
+    end
+
+    now = TZInfo::Timezone.get(version_data.time_zone).now
+
+    case version_data.build_value_type
+      when :JDate
+        build = get_jdate(now, version_data.start_year)
+
+        if version_data.build != build
+          version_data.revision = 0
+          version_data.build = build
+        else
+          version_data.revision += 1
+        end
+      when :Incremental
+        version_data.build += 1
+        version_data.revision = 0
+      else # :FullDate
+        build = get_full_date(now)
+
+        if version_data.build != build
+          version_data.revision = 0
+          version_data.build = build
+        else
+          version_data.revision += 1
+        end
+        build_str = build.to_s
+        version_data.tags[:DashBuild] = build_str[0..3] + '-' + build_str[4..5] + '-' + build_str[6..7]
+    end
+
+    info 'Version data is:'
+    version_data.tags.each { |key, value|
+      info "  #{key}=#{value}"
+    }
+
+    if options[:update]
+      info 'Updating version information:'
+    end
+
+    unless File.exists?(version_config_file_name)
+      FileUtils.cp(Vamper::VersionConfigFile.get_default_file, version_config_file_name)
+    end
+
+    version_config_file = Vamper::VersionConfigFile.new(File.open(version_config_file_name), version_data.tags)
+    file_list = version_data.files.map { |file_name| file_name.replace_tags!(version_data.tags) }
+
+    file_list.each do |file_name|
+      path = File.expand_path(File.join(File.dirname(input_file), file_name))
+      path_file_name = File.basename(path)
+      match = false
+
+      for file_type in version_config_file.file_types do
+        match = file_type.file_specs.any? { |file_spec| file_spec.match(path_file_name) }
+        unless match
+          next
+        end
+
+        if file_type.write
+          dir = File.dirname(path)
+          unless Dir.exists?(dir)
+            error "Directory '#{dir}' does not exist to write file ''#{path_file_name}''"
+            exit(1)
+          end
+
+          if options[:update]
+            IO.write(path, file_type.write)
+          end
+        else # !file_type.write
+          if File.exists?(path)
+            if options[:update]
+              file_type.updates.each do |update|
+                content = IO.read(path)
+                # At this point the only ${...} variables left in the replace strings are Before and After
+                # This line converts the ${...} into \k<...> to put captured groups from search back
+                # into the replace string.
+                content.gsub!(%r(#{update.search})m, update.replace.gsub(/\${(\w+)}/,'\\\\k<\\1>'))
+                IO.write(path, content)
+              end
+            end
+          else
+            error "file #{path} does not exist to update"
+            exit(1)
+          end
+        end
+
+        break
+      end
+
+      unless match
+        error "file '#{path}' has no matching file type in the .version.config"
+        exit(1)
+      end
+
+      info path
+
+      if options[:update]
+        version_data.write_to(File.open(input_file, 'w'))
+      end
+    end
+  end
+
+  description 'Vamper - file version stamper'
+  version '5.0.0'
+
+  options[:update] = false
+
+  on("-u", "--update", "Actually do the update.")
+
+  arg :input_file, "A version file. Default is to search parent directories for *.version", :optional
+
+  go!
+end

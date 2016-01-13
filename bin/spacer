@@ -1,4 +1,152 @@
 #!/usr/bin/env ruby
 
+require 'methadone'
 require 'spacer'
-Spacer.new.execute
+
+class Tool
+  include Methadone::Main
+  include Methadone::CLILogging
+
+  # When reporting the tool indicates beginning-of-line \(BOL\) tabs and spaces.
+  # When replacing, all tabs not at the beginning of a line are replaced with spaces.
+  # Spaces and tabs inside multi-line C# strings (@"...") and inside Ruby \%Q\(...\) strings
+  # are ignored.
+  # Note that conversion to tabs may still leave the file as mixed as some lines may have
+  # spaces that are not a whole number multiple of the tabstop size.  In that case use the
+  # -round option to remove smooth out the spurious spaces.
+
+  def self.get_whitespace_type(bol)
+    (bol.tabs > 0) ? (bol.spaces > 0 ? :mixed : :tabs) : :spaces
+  end
+
+  def self.read_file_lines(filename)
+    # Read the entire file
+    file_contents = File.read(filename)
+
+    # Convert to a list of lines, preserving the end-of-lines
+    lines = []
+    s = 0
+    i = 0
+
+    while i < file_contents.length do
+      c = file_contents[i]
+      c1 = i < file_contents.length - 1 ? file_contents[i + 1] : "\0"
+
+      if c == "\r"
+        i += 1
+
+        if c1 == "\n"
+          i += 1
+        end
+      elsif c == "\n"
+        i += 1
+      else
+        i += 1
+        next
+      end
+
+      lines.push(file_contents[s, i - s])
+      s = i
+    end
+
+    if s != i
+      lines.push(file_contents[s, i - s])
+    end
+
+    lines
+  end
+
+  main do |input_file|
+    unless File.exist?(input_file)
+      error "File #{input_file} does not exist"
+      next 1
+    end
+
+    output_file = options[:output_file]
+
+    if output_file.nil?
+      output_file = input_file
+    end
+
+    if File.extname(input_file) == '.cs'
+      file_type = :csharp
+    else
+      file_type = :text
+    end
+
+    lines = read_file_lines(input_file)
+
+    if file_type == :text
+      before = Spacer::Text.count_bol_spaces_and_tabs(lines)
+    else
+      before = Spacer::CSharp.count_bol_spaces_and_tabs(lines)
+    end
+
+    if !options[:mode].nil?
+      if file_type == :text
+        Spacer::Text.untabify(lines, options[:tabsize])
+      else
+        Spacer::CSharp.untabify(lines, options[:tabsize])
+      end
+
+      if options[:mode] == :tabs
+        if file_type == :text
+          Spacer::Text.tabify(lines, options[:tabsize], options[:round])
+        else
+          Spacer::CSharp.tabify(lines, options[:tabsize], options[:round])
+        end
+      end
+    end
+
+    msg = "\"#{input_file}\", #{file_type.to_s}, #{get_whitespace_type(before).to_s}"
+
+    if !options[:mode].nil?
+      if file_type == :text
+        after = Spacer::Text.count_bol_spaces_and_tabs(lines)
+      else
+        after = Spacer::CSharp.count_bol_spaces_and_tabs(lines)
+      end
+
+      file = nil
+
+      begin
+        file = File.new(output_file, 'w')
+
+        for line in lines do
+          file.write(line)
+        end
+      ensure
+        file.close() unless file == nil
+      end
+
+      msg += " -> \"#{output_file}\", #{get_whitespace_type(after).to_s}"
+    end
+
+    info msg
+  end
+
+  description 'Spacer - source file space/tab fixer tool'
+  version '5.0.0'
+
+  options[:tabsize] = 4
+  options[:round] = false
+
+  on("-o", "--output-file FILE", "The output file. Default is the same as the input file.")
+  on("-m", "--mode MODE","The convert mode (tabs or spaces) Default is to just display the files current state."\
+     "Updates will only be done when this argument is given.") do |mode|
+    options[:mode] = case mode
+      when 'tabs', 't'
+        :tabs
+      when 'spaces', 's'
+        :spaces
+      else
+        exit_now! "Unknown mode #{mode}"
+    end
+  end
+  on("-t", "--tabsize TABSIZE", "Tab size in spaces to assume. Default is #{options[:tabsize]} spaces.")
+  on("-r", "--round", "When tabifying, round BOL spaces down to an exact number of tabs.")
+
+  arg :input_file, "Input file to check or convert"
+
+  go!
+end
