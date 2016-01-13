@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
+require 'bundler/setup'
 require 'methadone'
 require 'vamper'
 require 'tzinfo'
@@ -84,12 +86,18 @@ class Tool
         else
           version_data.revision += 1
         end
-        build_str = build.to_s
-        version_data.tags[:DashBuild] = build_str[0..3] + '-' + build_str[4..5] + '-' + build_str[6..7]
     end
 
-    info 'Version data is:'
-    version_data.tags.each { |key, value|
+    tags = version_data.tags
+
+    case version_data.build_value_type
+      when :FullDate
+        build_str = build.to_s
+        tags[:DashBuild] = build_str[0..3] + '-' + build_str[4..5] + '-' + build_str[6..7]
+    end
+
+    info 'Version tags are:'
+    tags.each { |key, value|
       info "  #{key}=#{value}"
     }
 
@@ -101,8 +109,8 @@ class Tool
       FileUtils.cp(Vamper::VersionConfigFile.get_default_file, version_config_file_name)
     end
 
-    version_config_file = Vamper::VersionConfigFile.new(File.open(version_config_file_name), version_data.tags)
-    file_list = version_data.files.map { |file_name| file_name.replace_tags!(version_data.tags) }
+    version_config_file = Vamper::VersionConfigFile.new(File.open(version_config_file_name), tags)
+    file_list = version_data.files.map { |file_name| file_name.replace_tags!(tags) }
 
     file_list.each do |file_name|
       path = File.expand_path(File.join(File.dirname(input_file), file_name))

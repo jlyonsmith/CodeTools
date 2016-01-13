@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Version BuildValueType="FullDate">
   <Files>
-    <File>lib/vamper.rb</File>
-    <File>lib/ender.rb</File>
-    <File>lib/spacer.rb</File>
+    <File>bin/vamper</File>
+    <File>bin/ender</File>
+    <File>bin/spacer</File>
     <File>code-tools.gemspec</File>
   </Files>
   <Tags>
-    <Major>4</Major>
-    <Minor>2</Minor>
-    <Patch>1</Patch>
-    <Build>20151230</Build>
-    <Revision>0</Revision>
+    <Major>5</Major>
+    <Minor>0</Minor>
+    <Patch>0</Patch>
+    <Build>20160113</Build>
+    <Revision>10</Revision>
     <TimeZone>US/Pacific</TimeZone>
     <StartYear>2015</StartYear>
     <Company>John Lyon-Smith</Company>

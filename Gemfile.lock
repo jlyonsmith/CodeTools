@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    code_tools (4.2.1)
+    code-tools (5.0.0)
       methadone (~> 1.9)
       nokogiri (~> 1.6)
       tzinfo (~> 1.2)
@@ -22,7 +22,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  code_tools!
+  code-tools!
 
 BUNDLED WITH
    1.11.2
