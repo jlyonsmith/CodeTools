@@ -12,11 +12,11 @@
     <Minor>0</Minor>
     <Patch>1</Patch>
     <Build>20170211</Build>
-    <Revision>1</Revision>
+    <Revision>2</Revision>
     <TimeZone>US/Pacific</TimeZone>
     <StartYear>2015</StartYear>
     <Company>John Lyon-Smith</Company>
-    <Product>CodeTools</Product>
+    <Product>code-tools</Product>
     <Copyright>Copyright (c) 2015, John Lyon-Smith</Copyright>
   </Tags>
 </Version>
