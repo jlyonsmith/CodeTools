@@ -5,7 +5,7 @@ task :test do
 end
 
 task :vamper do
-  `vamper -u`
+  `bundle exec vamper -u`
   `git add :/`
   `git commit -m 'Update version info'`
   puts "Updated version"
