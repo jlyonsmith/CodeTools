@@ -86,16 +86,16 @@ class Tool
 
     if !options[:mode].nil?
       if file_type == :text
-        Spacer::Text.untabify(lines, options[:tabsize])
+        Spacer::Text.untabify(lines, options[:tabsize].to_i)
       else
-        Spacer::CSharp.untabify(lines, options[:tabsize])
+        Spacer::CSharp.untabify(lines, options[:tabsize].to_i)
       end
 
       if options[:mode] == :tabs
         if file_type == :text
-          Spacer::Text.tabify(lines, options[:tabsize], options[:round])
+          Spacer::Text.tabify(lines, options[:tabsize].to_i, options[:round] != nil)
         else
-          Spacer::CSharp.tabify(lines, options[:tabsize], options[:round])
+          Spacer::CSharp.tabify(lines, options[:tabsize].to_i, options[:round] != nil)
         end
       end
     end
