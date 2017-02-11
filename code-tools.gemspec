@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'code-tools'
-  s.version = '5.0.1'
+  s.version = '5.0.2'
   s.date = '2017-02-11'
   s.summary = "Source code tools"
   s.description = "Tools for source code maintenance, including version stamping, line endings and tab/space conversion."
