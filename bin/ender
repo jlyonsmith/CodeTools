@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 'bundler/setup'
 require 'methadone'
+require 'code_tools/version'
 
 class Tool
   include Methadone::Main
@@ -127,7 +127,7 @@ class Tool
   change_logger Methadone::CLILogger.new
 
   description 'Ender - the line ending fixer'
-  version '5.0.0'
+  version AppTools::VERSION
 
   on("-o", "--output-file FILE", "The output file. Default is the same as the input file.")
   on("-m", "--mode MODE",

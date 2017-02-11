@@ -1,5 +1,5 @@
 require 'nokogiri'
-require_relative '../core_ext.rb'
+require_relative 'core_ext.rb'
 
 module Vamper
   class BadVersionFile < StandardError; end

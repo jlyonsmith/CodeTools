@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 'bundler/setup'
 require 'methadone'
-require 'spacer'
+require 'code_tools/version'
+require 'code_tools/text'
+require 'code_tools/csharp'
 
 class Tool
   include Methadone::Main
@@ -128,7 +129,7 @@ class Tool
   end
 
   description 'Spacer - source file space/tab fixer tool'
-  version '5.0.0'
+  version AppTools::VERSION
 
   options[:tabsize] = 4
   options[:round] = false

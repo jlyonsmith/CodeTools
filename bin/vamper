@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 'bundler/setup'
 require 'methadone'
-require 'vamper'
 require 'tzinfo'
+require 'code_tools/version'
+require 'code_tools/version_file'
+require 'code_tools/version_config_file'
+require 'code_tools/core_ext.rb'
 
 class Tool
   include Methadone::Main
@@ -168,7 +170,7 @@ class Tool
   end
 
   description 'Vamper - file version stamper'
-  version '5.0.0'
+  version AppTools::VERSION
 
   options[:update] = false
 

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Version BuildValueType="FullDate">
   <Files>
-    <File>bin/vamper</File>
-    <File>bin/ender</File>
-    <File>bin/spacer</File>
+    <File>lib/code_tools/version.rb</File>
     <File>code-tools.gemspec</File>
     <File>Rakefile</File>
   </Files>
@@ -12,7 +10,7 @@
     <Minor>0</Minor>
     <Patch>1</Patch>
     <Build>20170211</Build>
-    <Revision>3</Revision>
+    <Revision>4</Revision>
     <TimeZone>US/Pacific</TimeZone>
     <StartYear>2015</StartYear>
     <Company>John Lyon-Smith</Company>
